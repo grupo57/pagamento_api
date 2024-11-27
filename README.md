@@ -11,7 +11,7 @@ O projeto acontece em 3 fases:
 
 - Indentificação do Cliente
 
-  Nesta etapa, realizamos a indentificação do cliente. Ele poderá se cadastrar ou escolher prosseguir sem cadastro.
+  Nesta etapa, realizamos a indentificação do cliente. Ele poderá se cadastrar ou escolher prosseguir sem cadastro
   Ao se cadastrar é solicitado Nome, Email e CPF. Caso decida não se cadastrar, a montagem e emissão do pedido utiliza como chave o ID do combo, que será retornado ao cliente acompanhar o andamento do Pedido.
 
 - Montagem do Combo
