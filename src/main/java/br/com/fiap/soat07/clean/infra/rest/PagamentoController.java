@@ -1,42 +1,43 @@
 package br.com.fiap.soat07.clean.infra.rest;
 
-import br.com.fiap.soat07.clean.core.domain.entity.Pagamento;
-import br.com.fiap.soat07.clean.core.domain.entity.Pedido;
-import br.com.fiap.soat07.clean.core.domain.enumeration.MetodoPagamentoEnum;
-import br.com.fiap.soat07.clean.core.domain.enumeration.PagamentoStatusEnum;
-import br.com.fiap.soat07.clean.core.domain.enumeration.ProvedorPagamentoEnum;
-import br.com.fiap.soat07.clean.core.exception.ComboNotFoundException;
-import br.com.fiap.soat07.clean.core.exception.PagamentoNotFoundException;
-import br.com.fiap.soat07.clean.core.exception.PedidoNotFoundException;
-import br.com.fiap.soat07.clean.infra.service.PagamentoService;
-import br.com.fiap.soat07.clean.infra.service.PedidoService;
-import jakarta.transaction.Transactional;
-import jakarta.websocket.server.PathParam;
+import java.net.URI;
+import java.util.Collection;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import br.com.fiap.soat07.clean.infra.rest.mapper.PagamentoMapper;
+import br.com.fiap.soat07.clean.core.domain.entity.Pagamento;
+import br.com.fiap.soat07.clean.core.domain.enumeration.PagamentoStatusEnum;
+import br.com.fiap.soat07.clean.core.exception.PagamentoNotFoundException;
+import br.com.fiap.soat07.clean.infra.rest.dto.CreatePagamentoDTO;
 import br.com.fiap.soat07.clean.infra.rest.dto.PagamentoDTO;
+import br.com.fiap.soat07.clean.infra.rest.mapper.PagamentoMapper;
+import br.com.fiap.soat07.clean.infra.service.PagamentoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Optional;
-
 @RestController
-@RequestMapping("/pedido")
+@RequestMapping("/pagamento")
 @RequiredArgsConstructor
-@Tag(name = "Pagamento", description = "Pagamento")
 public class PagamentoController {
 
     private final PagamentoService pagamentoService;
-    private final PedidoService pedidoService;
     private final PagamentoMapper mapper;
 
     @Operation(
@@ -52,22 +53,55 @@ public class PagamentoController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content =
                     { @Content(mediaType = "application/json", schema =
                     @Schema(implementation = ErrorResponse.class)) }) })
-    @PostMapping(value="/{id}/pagamento")
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
-    public ResponseEntity<PagamentoDTO> createPagamento(@PathVariable final Long id) {
-        if (id == null)
+    public ResponseEntity<PagamentoDTO> createPagamento(@RequestBody CreatePagamentoDTO pagamentoDTO) {
+        if (pagamentoDTO == null)
             return ResponseEntity.badRequest().build();
+        
+        Pagamento pagamento = mapper.toDomain(pagamentoDTO);
 
-        Pedido pedido = pedidoService.getSearchPedidoUseCase().findById(id).orElseThrow(() -> new PedidoNotFoundException(id));
-        Pagamento resultado = pagamentoService.getCreatePagamentoUseCase().executar(pedido, ProvedorPagamentoEnum.MERCADO_PAGO, MetodoPagamentoEnum.QRCODE);
+        Pagamento resultado = pagamentoService.getCreatePagamentoUseCase().executar(pagamento);
+        
+        URI localURI = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(pagamento.getId()).toUri();
+        
+        return ResponseEntity.created(localURI).body(mapper.toDTO(resultado));
+    }
+    
+    @Operation(
+            operationId = "atualizar",
+            description = "Atualizar pagamento",
+            tags = {"Pagamento"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Updated", content =
+                    { @Content(mediaType = "application/json", schema =
+                    @Schema(implementation = PagamentoDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Invalid values"),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content =
+                    { @Content(mediaType = "application/json", schema =
+                    @Schema(implementation = ErrorResponse.class)) }) })
+    @PutMapping
+    @Transactional
+    public ResponseEntity<PagamentoDTO> updatePagamento(@RequestBody PagamentoDTO pagamentoDTO) {
+        if (pagamentoDTO == null)
+            return ResponseEntity.badRequest().build();
+        
+        Pagamento pagamento = mapper.toDomain(pagamentoDTO);
+        
+        pagamentoService.getSearchPagamentoUseCase().findById(pagamento.getId()).orElseThrow(() -> new PagamentoNotFoundException(""));       
 
-        return ResponseEntity.ok(mapper.toDTO(resultado));
+        Pagamento resultado = pagamentoService.getUpdatePagamentoUseCase().executar(pagamento);
+        
+        return ResponseEntity.ok().body(mapper.toDTO(resultado));
+
     }
 
 
+
     @Operation(
-            operationId = "consultar situação",
-            description = "Consultar situação do pedido",
+            operationId = "consultar status",
+            description = "Consultar status do pedido",
             tags = {"Pagamento"}
     )
     @ApiResponses(value = {
@@ -79,22 +113,20 @@ public class PagamentoController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content =
                     { @Content(mediaType = "application/json", schema =
                     @Schema(implementation = ErrorResponse.class)) }) })
-    @GetMapping(value="/{id}/situacao", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PagamentoStatusEnum> consultarSituacaoDoPedido(@PathVariable final Long id) {
+    @GetMapping(value="/{id}/status", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PagamentoStatusEnum> consultarSituacaoDoPagamento(@PathVariable final String id) {
 
-        if (id == null)
+        if (StringUtils.isEmpty(id))
             return ResponseEntity.badRequest().build();
-        Pedido pedido = pedidoService.getSearchPedidoUseCase().findById(id).orElseThrow(() -> new PedidoNotFoundException(id));
-        Pagamento pagamento = pagamentoService.getSearchPagamentoUseCase().findByPedido(pedido).orElseThrow(() -> new PagamentoNotFoundException(""));
+        Pagamento pagamento = pagamentoService.getSearchPagamentoUseCase().findById(id).orElseThrow(() -> new PagamentoNotFoundException(""));
 
-        PagamentoStatusEnum resultado = pagamentoService.getRetornoGatewayPagamentoUseCase().executar(pagamento);
-        return ResponseEntity.ok(resultado);
+        return ResponseEntity.ok(pagamento.getStatus());
     }
-
-
+    
+    
     @Operation(
-            operationId = "QRCode para pagamento",
-            description = "Criar QRCOde para pagamento",
+            operationId = "consultar pagamento",
+            description = "Consultar pagamento do pedido",
             tags = {"Pagamento"}
     )
     @ApiResponses(value = {
@@ -106,22 +138,68 @@ public class PagamentoController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content =
                     { @Content(mediaType = "application/json", schema =
                     @Schema(implementation = ErrorResponse.class)) }) })
-    @GetMapping(value="/{id}/qrcode", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> qrcode(@PathVariable final Long id) {
+    @GetMapping(value="/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Pagamento> consultarPagamento(@PathVariable final String id) {
 
-        if (id == null)
+        if (StringUtils.isEmpty(id))
             return ResponseEntity.badRequest().build();
-        Pedido pedido = pedidoService.getSearchPedidoUseCase().findById(id).orElseThrow(() -> new PedidoNotFoundException(id));
-        Pagamento pagamento = pagamentoService.getSearchPagamentoUseCase().findByPedido(pedido).orElseThrow(() -> new PagamentoNotFoundException("Não existem informações de pagamento registradas para esse pedido"));
+        Pagamento pagamento = pagamentoService.getSearchPagamentoUseCase().findById(id).orElseThrow(() -> new PagamentoNotFoundException(""));
 
-        if (PagamentoStatusEnum.PAGO.equals(pagamento.getStatus()))
-            return ResponseEntity.badRequest().body("Pagamento já processado");
-
-        if (PagamentoStatusEnum.RECUSADO.equals(pagamento.getStatus()))
-            return ResponseEntity.badRequest().body("Pagamento recusado");
-
-        String qrCode = pagamentoService.getRetornoGatewayPagamentoUseCase().qrcode(pagamento);
-        return ResponseEntity.ok(qrCode);
+        return ResponseEntity.ok(pagamento);
     }
+    
+    @Operation(
+            operationId = "consultar pagamento",
+            description = "Consultar pagamento do pedido",
+            tags = {"Pagamento"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Consulta", content =
+                    { @Content(mediaType = "application/json", schema =
+                    @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "400", description = "Invalid values"),
+            @ApiResponse(responseCode = "404", description = "Pedido not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content =
+                    { @Content(mediaType = "application/json", schema =
+                    @Schema(implementation = ErrorResponse.class)) }) })
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<Pagamento>> consultarPagamento(@RequestParam(required = true, defaultValue = "0") Integer page, @RequestParam(required = true, defaultValue = "10") Integer size) {
+
+       
+    	Collection<Pagamento> pagamentos = pagamentoService.getSearchPagamentoUseCase().find(page, size);
+
+        return ResponseEntity.ok(pagamentos);
+    }
+    
+    @Operation(
+            operationId = "webhook",
+            description = "Receber status do pagamento",
+            tags = {"Pagamento Webhook"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Webhook", content =
+                    { @Content(mediaType = "application/json", schema =
+                    @Schema(implementation = PagamentoDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Invalid values"),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content =
+                    { @Content(mediaType = "application/json", schema =
+                    @Schema(implementation = ErrorResponse.class)) }) })
+    @PostMapping(value="/webhook", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Transactional
+    public ResponseEntity<PagamentoDTO> webhookPagamento(@RequestBody PagamentoDTO pagamentoDTO) {
+        if (pagamentoDTO == null)
+            return ResponseEntity.badRequest().build();
+        
+        Pagamento pagamento = mapper.toDomain(pagamentoDTO);
+        
+        pagamentoService.getSearchPagamentoUseCase().findById(pagamento.getId()).orElseThrow(() -> new PagamentoNotFoundException(""));       
+
+        Pagamento resultado = pagamentoService.getUpdatePagamentoUseCase().executar(pagamento);
+               
+        return ResponseEntity.ok().body(mapper.toDTO(resultado));
+    }
+
+
+
 
 }

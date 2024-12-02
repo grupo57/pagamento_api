@@ -27,5 +27,6 @@ public enum PedidoStatusEnum {
 	public boolean isFinalizado() {
 		return this == PedidoStatusEnum.FINALIZADO;
 	}
-
+	
+	
 }
