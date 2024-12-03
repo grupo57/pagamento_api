@@ -8,5 +8,9 @@ public class PagamentoNotFoundException extends ResourceNotFoundException {
     public PagamentoNotFoundException(String id) {
         super(String.format(MESSAGE, id));
     }
+    
+    public PagamentoNotFoundException(Long id) {
+        super(String.format(MESSAGE, id));
+    }
 
 }

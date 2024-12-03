@@ -1,7 +1,6 @@
 package br.com.fiap.soat07.clean.core.usecase.pagamento;
 
 import br.com.fiap.soat07.clean.core.domain.entity.Pagamento;
-import br.com.fiap.soat07.clean.core.domain.entity.Pedido;
 import br.com.fiap.soat07.clean.core.domain.enumeration.PagamentoStatusEnum;
 import br.com.fiap.soat07.clean.core.domain.enumeration.PedidoStatusEnum;
 import br.com.fiap.soat07.clean.core.gateway.PagamentoGateway;
@@ -9,20 +8,24 @@ import br.com.fiap.soat07.clean.core.gateway.PedidoGateway;
 
 public class UpdatePagamentoUseCase {
 
+	private final PagamentoGateway pagamentoGateway;
 	private final PedidoGateway pedidoGateway;
 
-	public UpdatePagamentoUseCase(PedidoGateway pedidoGateway) {
+	public UpdatePagamentoUseCase(PagamentoGateway pagamentoGateway, PedidoGateway pedidoGateway) {
+		this.pagamentoGateway = pagamentoGateway;
 		this.pedidoGateway = pedidoGateway;
 	}
 
-	public Pagamento executar(Pedido pedido, Pagamento pagamento, PagamentoStatusEnum status) {
+	public Pagamento executar(Pagamento pagamento) {
+		
+		Pagamento pagamentoAtualizado = pagamentoGateway.update(pagamento);
+		
+		if(pagamento.getStatus() == PagamentoStatusEnum.PAGO) {
+			pedidoGateway.updateStatusPedido(pagamento.getPedidoId(), PedidoStatusEnum.PAGO);
+		}
+		
+		return pagamentoAtualizado;
 
-		if (PagamentoStatusEnum.PAGO.equals(status))
-			pedido.setStatus(PedidoStatusEnum.PAGO);
-		pedidoGateway.save(pedido);
-
-		pagamento.setStatus(status);
-		return pedidoGateway.save(pedido, pagamento);
 	}
 
 }
