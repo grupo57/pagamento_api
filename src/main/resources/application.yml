@@ -9,8 +9,8 @@ spring:
       host: mongodb
       port: 27017
       database: local
-      username: techchallenge
-      password: techchallenge
+      username: ${MONGO_USERNAME:techchallenge}
+      password: ${MONGO_PASSWORD:techchallenge}
       
   jackson:
     serialization:
