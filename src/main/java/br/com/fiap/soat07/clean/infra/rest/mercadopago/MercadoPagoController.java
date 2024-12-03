@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -39,7 +38,6 @@ public class MercadoPagoController {
                     { @Content(mediaType = "application/json", schema =
                     @Schema(implementation = ErrorResponse.class)) }) })
     @PostMapping
-    @Transactional
     public ResponseEntity<PagamentoDTO> executePagamento(@RequestBody PagamentoDTO pagamento) {
         if (pagamento == null)
             return ResponseEntity.badRequest().build();
