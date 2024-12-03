@@ -29,7 +29,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -55,7 +54,6 @@ public class PagamentoController {
                     { @Content(mediaType = "application/json", schema =
                     @Schema(implementation = ErrorResponse.class)) }) })
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Transactional
     public ResponseEntity<PagamentoDTO> createPagamento(@RequestBody CreatePagamentoDTO pagamentoDTO) {
         if (pagamentoDTO == null)
             return ResponseEntity.badRequest().build();
@@ -83,7 +81,6 @@ public class PagamentoController {
                     { @Content(mediaType = "application/json", schema =
                     @Schema(implementation = ErrorResponse.class)) }) })
     @PutMapping
-    @Transactional
     public ResponseEntity<PagamentoDTO> updatePagamento(@RequestBody PagamentoDTO pagamentoDTO) {
         if (pagamentoDTO == null)
             return ResponseEntity.badRequest().build();
@@ -186,7 +183,6 @@ public class PagamentoController {
                     { @Content(mediaType = "application/json", schema =
                     @Schema(implementation = ErrorResponse.class)) }) })
     @PostMapping(value="/webhook", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Transactional
     public ResponseEntity<PagamentoDTO> webhookPagamento(@RequestBody PagamentoDTO pagamentoDTO) {
         if (pagamentoDTO == null)
             return ResponseEntity.badRequest().build();

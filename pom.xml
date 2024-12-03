@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>br.com.fiap.soat07</groupId>
-	<artifactId>tech-challenge-04-pagamento-local</artifactId>
+	<artifactId>tech-challenge-04-pagamento</artifactId>
 	<version>0.0.1</version>
 	<name>tech-challenge-04-pagamento</name>
 	<description>Tech Challenge Fase 4</description>
@@ -32,12 +32,7 @@
 	</properties>
 	
 	<dependencies>
-		<!-- spring-boot-starter-data-jpa -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		
+	
 		<!-- spring-boot-starter-web -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
