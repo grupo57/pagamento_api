@@ -6,7 +6,7 @@ spring:
     name: tech-challenge-04-pagamento
   data:
     mongodb:
-      host: localhost
+      host: mongodb
       port: 27017
       database: local
       username: techchallenge
@@ -21,7 +21,7 @@ application:
     webhook-url: ${PAGAMENTO_WEBHOOK_URL:http://localhost:8080/tech-challenge-04-pagamento/pagamento/webhook}
     mercadopago-url: ${PAGAMENTO_MERCADOPAGO_URL:http://localhost:8080/tech-challenge-04-pagamento/pagamento/mercadopago}
   pedido:
-    update-status-url: ${UPDATE_STATUS_PEDIDO_URL:http://localhost:8084/tech-challenge-04-pedido/pedido}
+    update-status-url: ${UPDATE_STATUS_PEDIDO_URL:http://localhost:8080/tech-challenge-04-pedido/pedido}
     
 info:
   group-id: "br.com.fiap.soat07"
