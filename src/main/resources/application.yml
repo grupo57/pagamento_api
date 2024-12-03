@@ -12,12 +12,16 @@ spring:
       username: techchallenge
       password: techchallenge
       
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      
 application:    
   pagamento:
     webhook-url: ${PAGAMENTO_WEBHOOK_URL:http://localhost:8080/tech-challenge-04-pagamento/pagamento/webhook}
     mercadopago-url: ${PAGAMENTO_MERCADOPAGO_URL:http://localhost:8080/tech-challenge-04-pagamento/pagamento/mercadopago}
   pedido:
-    update-status-url: ${UPDATE_STATUS_PEDIDO_URL:http://localhost:8084/tech-challenge-04/pedido}
+    update-status-url: ${UPDATE_STATUS_PEDIDO_URL:http://localhost:8084/tech-challenge-04-pedido/pedido}
     
 info:
   group-id: "br.com.fiap.soat07"

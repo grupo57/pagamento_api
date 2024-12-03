@@ -38,7 +38,8 @@ import lombok.RequiredArgsConstructor;
 public class PagamentoController {
 
     private final PagamentoService pagamentoService;
-    private final PagamentoMapper mapper;
+    
+    private final PagamentoMapper mapper;;
 
     @Operation(
             operationId = "criar",

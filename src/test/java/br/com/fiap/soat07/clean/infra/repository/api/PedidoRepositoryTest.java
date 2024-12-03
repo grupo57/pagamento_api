@@ -1,11 +1,11 @@
-/*
 package br.com.fiap.soat07.clean.infra.repository.api;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -20,9 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
-import br.com.fiap.soat07.clean.core.domain.entity.Pedido;
 import br.com.fiap.soat07.clean.core.domain.enumeration.PedidoStatusEnum;
-import br.com.fiap.soat07.clean.infra.rest.mapper.PedidoMapper;
+import br.com.fiap.soat07.clean.infra.rest.dto.PedidoDTO;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -32,56 +31,53 @@ public class PedidoRepositoryTest {
 	@Mock
 	private RestTemplate restTemplate;
 	
-	private PedidoMapper mapper = PedidoMapper.INSTANCE;
-	
 	@InjectMocks
-	private CozinhaRepository repository;
+	private PedidoRepository repository;
 	
-	private Object response = new Object();
-	
-	private String ATENDIMENTO_COZINHA_INCLUIR_PEDIDO_URL = "http://localhost";
+	private String UPDATE_STATUS_PEDIDO_URL = "http://localhost";
 	
 	@BeforeEach
 	void setup() {
 		MockitoAnnotations.openMocks(this);
-		repository = new CozinhaRepository(restTemplate, mapper);
-		ReflectionTestUtils.setField(repository, "ATENDIMENTO_COZINHA_INCLUIR_PEDIDO_URL", ATENDIMENTO_COZINHA_INCLUIR_PEDIDO_URL);
+		repository = new PedidoRepository(restTemplate);
+		ReflectionTestUtils.setField(repository, "UPDATE_STATUS_PEDIDO_URL", UPDATE_STATUS_PEDIDO_URL);
 	}
 	
 	@Test
 	void shouldTestSendSuccess() {
 		
-		when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(), eq(Object.class))).thenReturn(mockResponse());
+		when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(), eq(PedidoDTO.class))).thenReturn(mockResponseEntityPedidoDTO());
 
-		assertTrue(repository.send(mockPedido()));
+		repository.updateStatusPedido(1L, PedidoStatusEnum.PAGO);
+		verify(restTemplate, times(1)).exchange(anyString(), any(HttpMethod.class), any(), eq(PedidoDTO.class));
 		
 	}
 	
 	@Test
-	void shouldTestSendException() {
+	void shouldTestSendRuntimeException() {
 		
-		when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(), eq(Object.class))).thenThrow(RuntimeException.class);
-
-		assertFalse(repository.send(mockPedido()));
+		when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(), eq(PedidoDTO.class))).thenThrow(RuntimeException.class);
 		
-	}
-
-	private ResponseEntity<Object> mockResponse() {
-		return ResponseEntity.ok(response);
+		assertThatThrownBy(() -> repository.updateStatusPedido(1L, PedidoStatusEnum.PAGO))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Falha na comunicação: não foi possível atualizar o status do pedido: 1 para PAGO");
+				
+		verify(restTemplate, times(1)).exchange(anyString(), any(HttpMethod.class), any(), eq(PedidoDTO.class));
+		
 	}
 	
-	private Pedido mockPedido() {
-		Pedido pedido = Pedido.builder()
-				.codigo("COD1")
-				.id(1L)
-				.nomeCliente("test")
-				.status(PedidoStatusEnum.INICIADO)
-				.build();
-		return pedido;
+
+	private ResponseEntity<PedidoDTO> mockResponseEntityPedidoDTO() {
+		return ResponseEntity.ok(mockPedidoDTO());
 	}
 
-
+	private PedidoDTO mockPedidoDTO() {
+		return PedidoDTO.builder()
+		.id(1L)
+		.build();
+	}
+	
 }
-*/
+
 
 

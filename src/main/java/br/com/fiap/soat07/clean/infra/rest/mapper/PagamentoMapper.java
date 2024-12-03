@@ -13,7 +13,7 @@ import br.com.fiap.soat07.clean.infra.rest.dto.PagamentoDTO;
 @Mapper (componentModel = "spring")
 public interface PagamentoMapper {
 	
-	PagamentoMapper INSTANCE = Mappers.getMapper(PagamentoMapper.class);
+	static PagamentoMapper INSTANCE = Mappers.getMapper(PagamentoMapper.class);
 	
 	/**
 	 * To domain mapper

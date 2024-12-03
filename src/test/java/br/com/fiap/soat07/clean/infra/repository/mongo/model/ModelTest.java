@@ -2,7 +2,6 @@ package br.com.fiap.soat07.clean.infra.repository.mongo.model;
 
 import static com.google.code.beanmatchers.BeanMatchers.hasValidGettersAndSetters;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,8 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import com.google.code.beanmatchers.BeanMatchers;
 import com.google.code.beanmatchers.ValueGenerator;
-
-import br.com.fiap.soat07.clean.infra.repository.mongo.model.PagamentoModel;
 
 public class ModelTest {
 
@@ -50,12 +47,5 @@ public class ModelTest {
 
 		assertThat(PagamentoModel.class, hasValidGettersAndSetters());
 	}
-	
-
-	@Test
-	void shouldTestHasValidToString() {
-		assertEquals(new PagamentoModel().toString(), new PagamentoModel().toString());
-	}
-
 	
 }

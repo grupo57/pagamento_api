@@ -33,4 +33,5 @@ public class PagamentoModel {
 	private ProvedorPagamentoEnum provedorServico;
 	private MetodoPagamentoEnum metodoPagamento;
 	private LocalDateTime data;
+	
 }

@@ -26,11 +26,12 @@ public class PedidoRepository implements PedidoGateway {
 	
 	private final RestTemplate restTemplate;
 	
-	HttpEntity<String> requestEntity = new HttpEntity<>("");
+	
 
 	@Override
 	public void updateStatusPedido(Long pedidoId, PedidoStatusEnum status) {
 		
+		HttpEntity<String> requestEntity = new HttpEntity<>("");
 
 		String  url = UriComponentsBuilder.fromUriString(UPDATE_STATUS_PEDIDO_URL)
 				.pathSegment(String.format("%s", pedidoId))
@@ -45,7 +46,7 @@ public class PedidoRepository implements PedidoGateway {
 
 		}catch(RuntimeException e) {
 			log.error("Não foi possível atualizar o status do pedido: {} para {}", pedidoId, status, e);
-			throw new RuntimeException(String.format("Falha na comunicação: não foi possível atualizar o status do pedido: {} para {}", pedidoId, status), e);
+			throw new RuntimeException(String.format("Falha na comunicação: não foi possível atualizar o status do pedido: %s para %s", pedidoId, status), e);
 		}
 
 	}

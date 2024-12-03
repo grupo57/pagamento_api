@@ -45,7 +45,7 @@ public class MercadoPagoRepository implements PagamentoMercadoPagoGateway {
 
 		}catch(RuntimeException e) {
 			log.error("Não foi possível realizar o pagamento: {}", request.getId(), e);
-			throw new RuntimeException(String.format("Falha na comunicação: não foi possível realizar o pagamento: {}", request.getId()), e);
+			throw new RuntimeException(String.format("Falha na comunicação: não foi possível realizar o pagamento: %s", request.getId()), e);
 		}
 
 	}

@@ -1,6 +1,10 @@
 package br.com.fiap.soat07.clean.core.usecase.pagamento;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +16,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import br.com.fiap.soat07.clean.core.domain.entity.Pagamento;
-import br.com.fiap.soat07.clean.core.domain.enumeration.PagamentoStatusEnum;
 import br.com.fiap.soat07.clean.core.gateway.PagamentoGateway;
 import br.com.fiap.soat07.clean.core.gateway.PagamentoMercadoPagoGateway;
 
@@ -37,20 +40,13 @@ public class CreatePagamentoUseCaseTest {
 	@Test
 	void shouldTestExecutarPagamento() {		
 
-		when(pagamentoGateway.getSituacao(any(Pagamento.class))).thenReturn(PagamentoStatusEnum.PAGO);
-
-		//assertNotNull(useCase.executar(mockPedido(), ProvedorPagamentoEnum.MERCADO_PAGO, MetodoPagamentoEnum.CARTAO_CREDITO));
-		//verify( pedidoGateway, times(1)).save(any(Pedido.class), any(Pagamento.class));
-	}
-	
-	@Test
-	void shouldTestExecutarPagamentoPedidoNotFound() {		
-
-
-		//when(pagamentoGateway.create(any(Pedido.class))).thenReturn(mockPagamento());
+		when(pagamentoGateway.create(any(Pagamento.class))).thenReturn(mockPagamento());
 		
-		//assertNotNull(useCase.executar(mockPedido(), ProvedorPagamentoEnum.MERCADO_PAGO, MetodoPagamentoEnum.CARTAO_CREDITO));
-		//verify( pedidoGateway, times(1)).save(any(Pedido.class), any(Pagamento.class));
+		doNothing().when(pagamentoMercadoPagoGateway).executa(any(Pagamento.class));
+
+		assertNotNull(useCase.executar(mockPagamento()));
+		verify( pagamentoGateway, times(1)).create(any(Pagamento.class));
+		verify( pagamentoMercadoPagoGateway, times(1)).executa(any(Pagamento.class));
 	}
 	
 	private Pagamento mockPagamento() {

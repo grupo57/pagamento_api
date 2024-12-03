@@ -1,11 +1,11 @@
-/*
 package br.com.fiap.soat07.clean.infra.repository.api;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -20,9 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
-import br.com.fiap.soat07.clean.core.domain.entity.Pedido;
-import br.com.fiap.soat07.clean.core.domain.enumeration.PedidoStatusEnum;
-import br.com.fiap.soat07.clean.infra.rest.mapper.PedidoMapper;
+import br.com.fiap.soat07.clean.core.domain.entity.Pagamento;
+import br.com.fiap.soat07.clean.infra.rest.dto.PagamentoDTO;
+import br.com.fiap.soat07.clean.infra.rest.mapper.PagamentoMapper;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -32,56 +32,62 @@ public class MercadoPagoRepositoryTest {
 	@Mock
 	private RestTemplate restTemplate;
 	
-	private PedidoMapper mapper = PedidoMapper.INSTANCE;
+	private PagamentoMapper mapper = PagamentoMapper.INSTANCE;
 	
 	@InjectMocks
-	private CozinhaRepository repository;
+	private MercadoPagoRepository repository;
 	
-	private Object response = new Object();
-	
-	private String ATENDIMENTO_COZINHA_INCLUIR_PEDIDO_URL = "http://localhost";
+	private String PAGAMENTO_MERCADOPAGO_URL = "http://localhost";
 	
 	@BeforeEach
 	void setup() {
 		MockitoAnnotations.openMocks(this);
-		repository = new CozinhaRepository(restTemplate, mapper);
-		ReflectionTestUtils.setField(repository, "ATENDIMENTO_COZINHA_INCLUIR_PEDIDO_URL", ATENDIMENTO_COZINHA_INCLUIR_PEDIDO_URL);
+		repository = new MercadoPagoRepository(restTemplate, mapper);
+		ReflectionTestUtils.setField(repository, "PAGAMENTO_MERCADOPAGO_URL", PAGAMENTO_MERCADOPAGO_URL);
+		ReflectionTestUtils.setField(repository, "mapper", mapper);
 	}
 	
 	@Test
 	void shouldTestSendSuccess() {
 		
-		when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(), eq(Object.class))).thenReturn(mockResponse());
+		when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(), eq(PagamentoDTO.class))).thenReturn(mockResponseEntityPagamentoDTO());
 
-		assertTrue(repository.send(mockPedido()));
+		repository.executa(mockPagamento());
+		verify(restTemplate, times(1)).exchange(anyString(), any(HttpMethod.class), any(), eq(PagamentoDTO.class));
 		
 	}
 	
 	@Test
-	void shouldTestSendException() {
+	void shouldTestSendRuntimeException() {
 		
-		when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(), eq(Object.class))).thenThrow(RuntimeException.class);
-
-		assertFalse(repository.send(mockPedido()));
+		when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(), eq(PagamentoDTO.class))).thenThrow(RuntimeException.class);
 		
-	}
-
-	private ResponseEntity<Object> mockResponse() {
-		return ResponseEntity.ok(response);
+		assertThatThrownBy(() -> repository.executa(mockPagamento()))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Falha na comunicação: não foi possível realizar o pagamento: ABC123");
+				
+		verify(restTemplate, times(1)).exchange(anyString(), any(HttpMethod.class), any(), eq(PagamentoDTO.class));
+		
 	}
 	
-	private Pedido mockPedido() {
-		Pedido pedido = Pedido.builder()
-				.codigo("COD1")
-				.id(1L)
-				.nomeCliente("test")
-				.status(PedidoStatusEnum.INICIADO)
-				.build();
-		return pedido;
+
+	private ResponseEntity<PagamentoDTO> mockResponseEntityPagamentoDTO() {
+		return ResponseEntity.ok(mockPagamentoDTO());
 	}
 
+	private PagamentoDTO mockPagamentoDTO() {
+		return PagamentoDTO.builder()
+		.id("ABC123")
+		.build();
+	}
+	
+	private Pagamento mockPagamento() {
+		Pagamento pagamento = Pagamento.builder()
+		.id("ABC123")
+		.build();
+		return pagamento;
+	}
 
 }
-*/
 
 

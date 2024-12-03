@@ -1,6 +1,17 @@
 package br.com.fiap.soat07.clean.core.usecase.pagamento;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +22,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import br.com.fiap.soat07.clean.core.domain.entity.Pagamento;
+import br.com.fiap.soat07.clean.core.exception.PagamentoNotFoundException;
 import br.com.fiap.soat07.clean.core.gateway.PagamentoGateway;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,15 +43,25 @@ public class SearchPagamentoUseCaseTest {
 	@Test
 	void shouldTestFindById() {		
 
-		//when(pedidoGateway.findPagamento(any(Pedido.class))).thenReturn(Optional.of(mockPagamento()));
-		//when(pedidoGateway.findById(anyLong())).thenReturn(Optional.of(mockPedido()));
+		when(pagamentoGateway.findById(anyString())).thenReturn(Optional.of(mockPagamento()));
 
-		//assertNotNull(useCase.findById(1L));
-		//verify( pedidoGateway, times(1)).findPagamento(any(Pedido.class));
+		assertNotNull(useCase.findById("COD_PAGAMENTO"));
+		verify( pagamentoGateway, times(1)).findById(anyString());
 	}
 	
 	@Test
 	void shouldTestFindByIdPedidoNotFoundException() {		
+
+		when(pagamentoGateway.findById(anyString())).thenReturn(Optional.empty());
+		
+		assertThatThrownBy(() -> useCase.findById("COD_PAGAMENTO"))
+        .isInstanceOf(PagamentoNotFoundException.class)
+        .hasMessage("Não foi encontrado um pagamento com o Id:COD_PAGAMENTO");
+
+	}
+	
+	@Test
+	void shouldTestFindByIdIllegalArgumentException() {		
 		
 		assertThatThrownBy(() -> useCase.findById(null))
         .isInstanceOf(IllegalArgumentException.class)
@@ -48,60 +70,22 @@ public class SearchPagamentoUseCaseTest {
 	}
 	
 	@Test
-	void shouldTestFindByPedido() {		
+	void shouldTestFind() {		
 
-		//when(pedidoGateway.findPagamento(any(Pedido.class))).thenReturn(Optional.of(mockPagamento()));
+		when(pagamentoGateway.find(anyInt(), anyInt())).thenReturn(mockPagamentos());
 
-		//assertNotNull(useCase.findByPedido(mockPedido()));
-		//verify( pedidoGateway, times(1)).findPagamento(any(Pedido.class));
+		assertNotNull(useCase.find(1, 10));
+		verify(pagamentoGateway, times(1)).find(anyInt(), anyInt());
 	}
 	
-	@Test
-	void shouldTestFindByPedidoNotFoundException() {		
 		
-		//assertThatThrownBy(() -> useCase.findByPedido(null))
-        //.isInstanceOf(IllegalArgumentException.class)
-        //.hasMessage("Obrigatório informar o pedido");
-
+	
+	private Collection<Pagamento> mockPagamentos() {
+		List<Pagamento> pagamentos = new ArrayList<>();
+		pagamentos.add(mockPagamento());
+		return pagamentos;
 	}
-	
-	@Test
-	void shouldTestFindByProvedor() {		
 
-		//when(pedidoGateway.findPagamento(any(ProvedorPagamentoEnum.class), anyString())).thenReturn(Optional.of(mockPagamento()));
-
-		//assertNotNull(useCase.findByProvedor(ProvedorPagamentoEnum.MERCADO_PAGO, "COD1"));
-		//verify( pedidoGateway, times(1)).findPagamento(any(ProvedorPagamentoEnum.class), anyString());
-	}
-	
-	@Test
-	void shouldTestFindByProvedorNotFoundException() {		
-		
-		//assertThatThrownBy(() -> useCase.findByProvedor(null, "COD1"))
-        //.isInstanceOf(IllegalArgumentException.class)
-        //.hasMessage("Obrigatório informar o provedor");
-
-	}
-	
-	@Test
-	void shouldTestFindByProvedorPagameantoIdNullNotFoundException() {		
-		
-		//assertThatThrownBy(() -> useCase.findByProvedor(ProvedorPagamentoEnum.MERCADO_PAGO, null))
-        //.isInstanceOf(IllegalArgumentException.class)
-        //.hasMessage("Obrigatório informar o código de transação de pagamento");
-
-	}
-	
-	@Test
-	void shouldTestFindByProvedorPagameantoIdEmptyNotFoundException() {		
-		
-		//assertThatThrownBy(() -> useCase.findByProvedor(ProvedorPagamentoEnum.MERCADO_PAGO, ""))
-        //.isInstanceOf(IllegalArgumentException.class)
-        //.hasMessage("Obrigatório informar o código de transação de pagamento");
-
-	}
-	
-	
 	private Pagamento mockPagamento() {
 		Pagamento pagamento = new Pagamento();
 		return pagamento;

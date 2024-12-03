@@ -1,7 +1,7 @@
 package br.com.fiap.soat07.clean.infra.rest.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -25,7 +25,7 @@ public class CreatePagamentoDTO {
 	private BigDecimal valor;
 	
 	@Builder.Default
-	private LocalDate data = LocalDate.now();
+	private LocalDateTime data = LocalDateTime.now();
 	
 	@Builder.Default
 	private ProvedorPagamentoEnum provedorServico = ProvedorPagamentoEnum.MERCADO_PAGO;

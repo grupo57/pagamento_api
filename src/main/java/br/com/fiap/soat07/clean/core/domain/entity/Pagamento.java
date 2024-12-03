@@ -9,10 +9,12 @@ import br.com.fiap.soat07.clean.core.domain.enumeration.MetodoPagamentoEnum;
 import br.com.fiap.soat07.clean.core.domain.enumeration.PagamentoStatusEnum;
 import br.com.fiap.soat07.clean.core.domain.enumeration.ProvedorPagamentoEnum;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -20,7 +22,10 @@ public class Pagamento {
 	
 	private String id;
 	private Long pedidoId;
+	
+	@Builder.Default
 	private PagamentoStatusEnum status = PagamentoStatusEnum.NAO_CONCLUIDO;
+	
 	private ProvedorPagamentoEnum provedorServico;
 	private MetodoPagamentoEnum metodoPagamento;
 	private String qrcode;
