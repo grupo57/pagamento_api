@@ -12,7 +12,7 @@ public class DatabaseConfig {
 
 	@Bean
     public MongoClient mongoClient() {
-        return MongoClients.create("mongodb://techchallenge:techchallenge@localhost:27017/local?authSource=admin");
+        return MongoClients.create("mongodb://techchallenge:techchallenge@mongodb:27017/local?authSource=admin");
     }
 
     @Bean
