@@ -4,6 +4,7 @@ services:
     build: .
     container_name: tech-challenge-group-57-pagamento-api
     restart: always
+    hostname: app
     ports:
       - 8083:8080
     networks:

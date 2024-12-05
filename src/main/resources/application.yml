@@ -18,10 +18,10 @@ spring:
       
 application:    
   pagamento:
-    webhook-url: ${PAGAMENTO_WEBHOOK_URL:http://app:8080/tech-challenge-04-pagamento/pagamento/webhook}
-    mercadopago-url: ${PAGAMENTO_MERCADOPAGO_URL:http://app:8080/tech-challenge-04-pagamento/pagamento/mercadopago}
+    webhook-url: ${PAGAMENTO_WEBHOOK_URL:http://host.docker.internal:8083/tech-challenge-04-pagamento/pagamento/webhook}
+    mercadopago-url: ${PAGAMENTO_MERCADOPAGO_URL:http://host.docker.internal:8083/tech-challenge-04-pagamento/pagamento/mercadopago}
   pedido:
-    update-status-url: ${UPDATE_STATUS_PEDIDO_URL:http://localhost:8081/tech-challenge-04-pedido/pedido}
+    update-status-url: ${UPDATE_STATUS_PEDIDO_URL:http://host.docker.internal:8081/tech-challenge-04-pedido/pedido}
     
 info:
   group-id: "br.com.fiap.soat07"
