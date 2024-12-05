@@ -38,7 +38,7 @@ public class PedidoRepository implements PedidoGateway {
 	            .queryParam("status", status)
 	            .build()
 	            .toUriString();
-		
+		log.info("url: {}", url);
 		try {
 		ResponseEntity<PedidoDTO> response =
 				restTemplate.exchange(url, HttpMethod.PATCH, requestEntity, PedidoDTO.class);
